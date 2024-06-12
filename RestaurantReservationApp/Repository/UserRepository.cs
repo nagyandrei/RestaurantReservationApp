@@ -23,6 +23,11 @@ namespace RestaurantReservationApp.Repository
             return await _context.Users.AnyAsync(u => u.Name.Equals(name));
         }
 
+        public async Task<User> GetUserByEmailAndPasswordAsync(string username, string password)
+        {
+            return await _context.Users.FirstOrDefaultAsync(r => r.Name.Equals(username) && r.Password.Equals(password));
+        }
+
         // Implement any user-specific methods here
     }
 

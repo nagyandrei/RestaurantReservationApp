@@ -1,10 +1,9 @@
 ﻿using AutoMapper;
-using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RestaurantReservationApp.Dto;
 using RestaurantReservationApp.Interface;
 using RestaurantReservationApp.Models;
-using RestaurantReservationApp.Repository;
 
 namespace RestaurantReservationApp.Controllers
 {
@@ -33,6 +32,7 @@ namespace RestaurantReservationApp.Controllers
         [HttpGet]
         [ProducesResponseType(200, Type = typeof(IEnumerable<UserDto>))]
         [ProducesResponseType(400)]
+        [Authorize]
         public async Task<ActionResult<IEnumerable<UserDto>>> GetUsers()
         {
             var users = await _userRepository.GetAllAsync();
@@ -58,6 +58,7 @@ namespace RestaurantReservationApp.Controllers
         [ProducesResponseType(200, Type = typeof(UserDto))]
         [ProducesResponseType(404)]
         [ProducesResponseType(400)]
+        [Authorize]
         public async Task<ActionResult<UserDto>> GetUser(string username)
         {
             var user = await _userRepository.GetByIdAsync(username);
@@ -84,6 +85,7 @@ namespace RestaurantReservationApp.Controllers
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
+        [Authorize]
         public async Task<IActionResult> PutUser(string username, UserDto userDto)
         {
             //if (username != userDto.Id)
@@ -113,6 +115,7 @@ namespace RestaurantReservationApp.Controllers
         [HttpPost]
         [ProducesResponseType(201, Type = typeof(UserDto))]
         [ProducesResponseType(400)]
+        [AllowAnonymous]
         public async Task<ActionResult<UserDto>> PostUser(UserDto userDto)
         {
             // Check if a user with the same username already exists
@@ -163,6 +166,7 @@ namespace RestaurantReservationApp.Controllers
         [HttpDelete("{id}")]
         [ProducesResponseType(204)]
         [ProducesResponseType(404)]
+        [Authorize]
         public async Task<IActionResult> DeleteUser(string id)
         {
             var user = await _userRepository.GetByIdAsync(id);

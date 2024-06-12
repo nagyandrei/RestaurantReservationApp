@@ -18,6 +18,11 @@ namespace RestaurantReservationApp.Repository
             return await _context.Roles.FirstOrDefaultAsync(r => r.RoleName.Equals(roleName));
         }
 
+        public async Task<Role> GetRoleByIdAsync(string id)
+        {
+            return await _context.Roles.FirstOrDefaultAsync(r => r.Id.Equals(id));
+        }
+
     }
 
 }

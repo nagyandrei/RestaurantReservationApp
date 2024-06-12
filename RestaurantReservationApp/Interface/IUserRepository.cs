@@ -6,6 +6,7 @@ namespace RestaurantReservationApp.Interface
     {
         Task<bool> ExistsByEmailAddressAsync(string email);
         Task<bool> ExistsByUsernameAsync(string name);
+        Task<User> GetUserByEmailAndPasswordAsync(string username, string password);
     }
 
 }
