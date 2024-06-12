@@ -19,7 +19,7 @@ namespace RestaurantReservationApp.Helpers
             CreateMap<Role, RoleDto>();
             CreateMap<RoleDto, RoleDto>();
             CreateMap<User, UserDto>();
-            CreateMap<UserDto, UserDto>();
+            CreateMap<UserDto, User>();
         }
     }
 }
