@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using RestaurantReservationApp.Dto;
 using RestaurantReservationApp.Interface;
 using RestaurantReservationApp.Models;
+using System.Security.Claims;
 
 namespace RestaurantReservationApp.Controllers
 {
@@ -32,7 +33,7 @@ namespace RestaurantReservationApp.Controllers
         [HttpGet]
         [ProducesResponseType(200, Type = typeof(IEnumerable<UserDto>))]
         [ProducesResponseType(400)]
-        [Authorize]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<IEnumerable<UserDto>>> GetUsers()
         {
             var users = await _userRepository.GetAllAsync();
@@ -81,19 +82,16 @@ namespace RestaurantReservationApp.Controllers
         /// <response code="204">If the user was updated successfully.</response>
         /// <response code="400">If the ID does not match or there is an error.</response>
         /// <response code="404">If the user is not found.</response>
-        [HttpPut("{id}")]
+        [HttpPut]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
         [Authorize]
         public async Task<IActionResult> PutUser(string username, UserDto userDto)
         {
-            //if (username != userDto.Id)
-            //{
-            //    return BadRequest();
-            //}
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            var user = await _userRepository.GetByIdAsync(username);
+            var user = await _userRepository.GetByIdAsync(userId);
             if (user == null)
             {
                 return NotFound();
@@ -116,7 +114,7 @@ namespace RestaurantReservationApp.Controllers
         [ProducesResponseType(201, Type = typeof(UserDto))]
         [ProducesResponseType(400)]
         [AllowAnonymous]
-        public async Task<ActionResult<UserDto>> PostUser(UserDto userDto)
+        public async Task<ActionResult<UserDto>> PostUser(UserDto userDto, bool isRestaurantOwner)
         {
             // Check if a user with the same username already exists
             if (await _userRepository.ExistsByUsernameAsync(userDto.Name))
@@ -129,11 +127,17 @@ namespace RestaurantReservationApp.Controllers
                 return BadRequest("Email address already taken!");
             }
 
-            var userRole = await _roleRepository.GetRoleByNameAsync("User");
+            var role = "User";
+            if (isRestaurantOwner)
+            {
+                role = "Restaurant";
+            }
+
+            var userRole = await _roleRepository.GetRoleByNameAsync(role);
 
             if (userRole == null)
             {
-                return BadRequest("Default role 'User' not found in the database.");
+                return BadRequest($"Default role '{role}' not found in the database.");
             }
 
             var user = _mapper.Map<User>(userDto);
@@ -152,7 +156,7 @@ namespace RestaurantReservationApp.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest("Failed to create user. "+ex.Message);
+                return BadRequest("Failed to create user. " + ex.Message);
             }
         }
 
@@ -163,20 +167,22 @@ namespace RestaurantReservationApp.Controllers
         /// <returns>No content.</returns>
         /// <response code="204">If the user was deleted successfully.</response>
         /// <response code="404">If the user is not found.</response>
-        [HttpDelete("{id}")]
+        [HttpDelete]
         [ProducesResponseType(204)]
         [ProducesResponseType(404)]
-        [Authorize]
-        public async Task<IActionResult> DeleteUser(string id)
+        [Authorize(Roles = "Admin,User,Restaurant")]
+        public async Task<IActionResult> DeleteUser()
         {
-            var user = await _userRepository.GetByIdAsync(id);
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            var user = await _userRepository.GetByIdAsync(userId);
 
             if (user == null)
             {
                 return NotFound();
             }
 
-            await _userRepository.DeleteAsync(id);
+            await _userRepository.DeleteAsync(userId);
             return NoContent();
         }
     }

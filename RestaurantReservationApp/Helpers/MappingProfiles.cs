@@ -13,6 +13,8 @@ namespace RestaurantReservationApp.Helpers
             CreateMap<Reservation, ReservationDto>();
             CreateMap<ReservationDto, ReservationDto>();
             CreateMap<Restaurant, RestaurantDto>();
+            CreateMap<Restaurant, RestaurantCreateDto>();
+            CreateMap<RestaurantCreateDto, Restaurant>();
             CreateMap<ReservationDto, ReservationDto>();
             CreateMap<Review, ReviewDto>();
             CreateMap<ReviewDto, ReviewDto>();

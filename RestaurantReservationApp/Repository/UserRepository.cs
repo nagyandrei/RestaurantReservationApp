@@ -28,7 +28,6 @@ namespace RestaurantReservationApp.Repository
             return await _context.Users.FirstOrDefaultAsync(r => r.Name.Equals(username) && r.Password.Equals(password));
         }
 
-        // Implement any user-specific methods here
     }
 
 }
